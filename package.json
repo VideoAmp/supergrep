@@ -10,9 +10,6 @@
     "split": "^0.3.3"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "keywords": [
     "s3",
     "grep"
