@@ -1,0 +1,22 @@
+{
+  "name": "supergrep",
+  "version": "1.0.0",
+  "description": "Digs through hoards of s3 logs for patterns, used for auditing beacon and vast data",
+  "main": "supergrep.js",
+  "dependencies": {
+    "async": "^0.9.0",
+    "aws-sdk": "^2.1.18",
+    "optimist": "^0.6.1",
+    "split": "^0.3.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "s3",
+    "grep"
+  ],
+  "author": "Dave Gullo",
+  "license": "MIT"
+}
