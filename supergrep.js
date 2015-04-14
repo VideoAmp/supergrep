@@ -105,7 +105,7 @@ async.waterfall([
                     }).
                     on("error", callback).
                     on("end", function() {
-                            callback2();
+                        callback2();
                     });
             },
             function(err) {
