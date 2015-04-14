@@ -2,6 +2,7 @@
 var async = require("async");
 var split = require("split");
 var zlib = require("zlib");
+var color = require("bash-color");
 
 var AWS = require("aws-sdk");
 AWS.config.loadFromPath("./aws.json");
@@ -13,21 +14,30 @@ var args = require("optimist")
         "alias": "b"
     }).describe("bucket", "s3 bucket to scan")
     .options("dirs", {
-        "default": "i-e76ef919/,i-83882e72/",
+        "default": "i-e76ef919,i-83882e72",
         "alias": "d"
-    }).describe("dirs", "sub-directories under the buckets root from which to scan")
+    }).describe("dirs", "sub-directories under the buckets root from which to scan, as the first level search")
+    .options("file_mask", {
+        "default": "access.log.2015-04-14",
+        "alias": "k"
+    }).describe("file_mask", "file mask for which to do a second level search")
     .options("start", {
-        "default": "1427846400",
+        "default": "1429023300",
         "alias": "s"
-    }).describe("start", "timestamp from which to start")
+    }).describe("start", "timestamp from which to start, as the third level search")
     .options("end", {
-        "default": "1427868000",
+        "default": "1429023660",
         "alias": "e"
-    }).describe("end", "timestamp from which to end")
+    }).describe("end", "timestamp from which to end, as the third level search")
+    .options("pattern", {
+        "default": "54610bed88c86bd6378bdcda",
+        "alias": "t"
+    }).describe("pattern", "pattern for which to do the line-leven level search")
     .options("help", {
         "default": false,
         "alias": "h"
     }).describe("help", "this help message")
+    //.demand(["bucket", "dirs"])
     .alias("help", "?")
     .usage("Usage: $0");
 
@@ -47,21 +57,21 @@ async.waterfall([
             },
             function(callback2) {
                 var row = dirs.pop();
-                console.error(row, files.length);
+                error(row +" "+ files.length);
                 var p = {
                     Bucket: params.Bucket,
                     Delimiter: ",",
                     EncodingType: "url",
                     MaxKeys: 1000,
-                    Prefix: row +"access.log.2015-04-01"
+                    Prefix: row +"/"+ args.argv.file_mask
                 };
                 s3.listObjects(p, function(err, res) {
                     if (err) {
-                        console.log(err, err.stack);
+                        error(err +"\n"+ err.stack);
                     } else {
                         res.Contents.forEach(function (m) {
-                            var poo = m.Key.split(/(2015\-04\-01\-|\.gz)/);
-                            if (poo[2] >= 1427846400 && poo[2] <= 1427868000) {
+                            var poo = m.Key.split(/[\d]{4}-[\d]{2}-[\d]{2}-|\.gz/);
+                            if (poo[1] >= args.argv.start && poo[1] <= args.argv.end) {
                                 files.push(m);
                             }
                         });
@@ -75,21 +85,21 @@ async.waterfall([
         );
     },
     function(callback) {
-        console.log("Fetching: "+ files.length +" files");
+        error("Fetching: "+ files.length +" files");
         async.whilst(
             function() {
                 return files.length > 0;
             },
             function(callback2) {
                 params.Key = files.pop().Key;
-                console.error("###", params.Key);
+                error("### "+ params.Key);
                 s3
                     .getObject(params)
                     .createReadStream()
                     .pipe(zlib.createGunzip())
                     .pipe(split())
                     .on("data", function(line) {
-                        if (/(551af3c40d7c70d24d921207|551af426a4f199f24dacded6|551b34dea4f199f24dacded8|551b359b0d7c70d24d92120b)/.test(line)) {
+                        if (new RegExp(args.argv.pattern).test(line)) {
                             console.log(line);
                         }
                     }).
@@ -105,6 +115,11 @@ async.waterfall([
     }
 ], function(err) {
     if (err) {
-        console.warn(err);
+        error(err);
     }
 });
+
+
+var error = function(str) {
+    console.error(color.red(str));
+};
