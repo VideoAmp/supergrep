@@ -1,6 +1,6 @@
 ```
 Usage:
-node supergrep > my-big-file.log
+node supergrep.js  -d i-e76ef919,i-83882e72  -k access.log.2015-04-01 -s 1427846400  -e 1427850000  -t 551b34dea4f199f24dacded8
 ```
 
 ```
