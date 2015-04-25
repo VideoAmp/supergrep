@@ -3,6 +3,7 @@ var async = require("async");
 var split = require("split");
 var zlib = require("zlib");
 var color = require("bash-color");
+var moment = require("moment");
 
 var AWS = require("aws-sdk");
 AWS.config.loadFromPath("./aws.json");
@@ -18,19 +19,19 @@ var args = require("optimist")
         "alias": "d"
     }).describe("dirs", "sub-directories under the buckets root from which to scan, as the first level search")
     .options("file_mask", {
-        "default": "access.log.2015-04-14",
+        "default": "access.log.2015-04-2",
         "alias": "k"
     }).describe("file_mask", "file mask for which to do a second level search")
     .options("start", {
-        "default": "1429023300",
+        "default": moment("2015-04-01 00:00:00 Z").format("X"),
         "alias": "s"
     }).describe("start", "timestamp from which to start, as the third level search")
     .options("end", {
-        "default": "1429023660",
+        "default": moment("2015-04-01 12:00:00 Z").format("X"),
         "alias": "e"
     }).describe("end", "timestamp from which to end, as the third level search")
     .options("pattern", {
-        "default": "54610bed88c86bd6378bdcda",
+        "default": "5537deaea57348f677dd0260",
         "alias": "t"
     }).describe("pattern", "pattern for which to do the line-leven level search")
     .options("help", {
@@ -105,7 +106,7 @@ async.waterfall([
                     }).
                     on("error", callback).
                     on("end", function() {
-                        callback2();
+                            callback2();
                     });
             },
             function(err) {
