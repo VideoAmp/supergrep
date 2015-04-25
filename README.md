@@ -15,6 +15,19 @@ $ s3cmd ls s3://vamp_beacon_logs/i-e76ef919/access.log.2015-04-14*
 ...
 ```
 
+Testing
+-------
+```
+$ node supergrep.js  -d i-e76ef919,i-83882e72  -k access.log.2015-04-01 -s 1427849700  -e 1427850000  -t 551b34dea4f199f24dacded8 | wc -l
+i-83882e72 0
+i-e76ef919 1
+Fetching: 2 files
+### i-e76ef919/access.log.2015-04-01-1427849701.gz
+### i-83882e72/access.log.2015-04-01-1427849701.gz
+72727
+
+```
+
 
 ```
 # aws.json
